@@ -19,77 +19,78 @@ import {
 const AdminPage = ({ onLogout }) => {
     const [transactions, setTransactions] = useState([]);
     const [searchTerm, setSearchTerm] = useState('');
-    const [sortBy, setSortBy] = useState('date');
+    const [sortBy, setSortBy] = useState('amount');
     const [sortOrder, setSortOrder] = useState('desc');
     const [currentPage, setCurrentPage] = useState(1);
     const transactionsPerPage = 5;
-    const [newTransaction, setNewTransaction] = useState({
-        date: new Date().toISOString().slice(0, 16),
-        amount: '',
-        description: '',
-        userId: '',
-    });
+    const [showOnlyRequiresReview, setShowOnlyRequiresReview] = useState(false);
+
 
     useEffect(() => {
-        const initialTransactions = Array.from({ length: 15 }, (_, i) => ({
-            id: i + 1,
-            date: new Date(Date.now() - Math.random() * 30 * 24 * 60 * 60 * 1000).toISOString(),
-            amount: Math.floor(Math.random() * 200) + 50,
-            description: `Payment ${i + 1}`,
-            userId: Math.floor(Math.random() * 5) + 1,
-        }));
+        const initialTransactions = Array.from({ length: 15 }, (_, i) => {
+            const fraudProbability = Math.random() * 100;
+            const transactionDate = new Date();
+            return {
+                market_place_Id: `MP${Math.floor(Math.random() * 10) + 1}`,
+                mobile_user_id: `MU${Math.floor(Math.random() * 100) + 1}`,
+                scammer_acc: `ACC${Math.floor(Math.random() * 1000) + 1}`,
+                contact_phone: `+7${Math.floor(Math.random() * 900000000) + 7000000000}`,
+                fio: `User ${i + 1} FIO`,
+                address: `Address ${i + 1}`,
+                fraud_probability: fraudProbability,
+                id: i + 1,
+                user_id: Math.floor(Math.random() * 5) + 1,
+                recipient_id: Math.floor(Math.random() * 5) + 6,
+                amount: Math.floor(Math.random() * 200) + 50,
+                operation_status: null,
+                date: transactionDate.toISOString(),
+            };
+        });
         setTransactions(initialTransactions);
     }, []);
 
-    const handleDeleteTransaction = (id) => {
-        setTransactions(transactions.filter((transaction) => transaction.id !== id));
-    };
 
-    const handleUpdateTransaction = (updatedTransaction) => {
-        setTransactions(
-            transactions.map((transaction) =>
-                transaction.id === updatedTransaction.id ? updatedTransaction : transaction
-            )
-        );
-    };
-
-    const handleCreateTransaction = () => {
-        if (!newTransaction.amount || !newTransaction.description || !newTransaction.userId) {
-            alert('Пожалуйста, заполните все поля.');
-            return;
+    const getStatus = (transaction) => {
+        if (transaction.operation_status) {
+            return transaction.operation_status;
+        } else {
+            return transaction.fraud_probability > 70 ? "Требует проверки" : "Завершена";
         }
-
-        const newId = transactions.length > 0 ? Math.max(...transactions.map(t => t.id)) + 1 : 1;
-        const transactionToAdd = {
-            id: newId,
-            date: new Date(newTransaction.date).toISOString(),
-            amount: parseFloat(newTransaction.amount),
-            description: newTransaction.description,
-            userId: parseInt(newTransaction.userId),
-        };
-
-        setTransactions([...transactions, transactionToAdd]);
-        setNewTransaction({
-            date: new Date().toISOString().slice(0, 16),
-            amount: '',
-            description: '',
-            userId: '',
-        });
     };
 
-    const filteredTransactions = transactions.filter((transaction) =>
-        transaction.description.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        new Date(transaction.date).toLocaleDateString().includes(searchTerm)
-    );
+    const formatDateForSearch = (dateString) => {
+        const date = new Date(dateString);
+        const day = String(date.getDate()).padStart(2, '0');
+        const month = String(date.getMonth() + 1).padStart(2, '0');
+        const year = date.getFullYear();
+        return `${day}.${month}.${year}`;
+    };
+
+
+    const filteredTransactions = transactions.filter((transaction) => {
+        const searchDate = formatDateForSearch(transaction.date);
+        return (
+            String(transaction.user_id).includes(searchTerm) ||
+            String(transaction.recipient_id).includes(searchTerm) ||
+            searchDate.includes(searchTerm) ||
+            searchTerm === ''
+        ) &&
+        (!showOnlyRequiresReview || getStatus(transaction) === "Требует проверки");
+    });
+
 
     const sortedTransactions = [...filteredTransactions].sort((a, b) => {
         const order = sortOrder === 'asc' ? 1 : -1;
-        if (sortBy === 'date') {
-            return order * (new Date(a.date) - new Date(b.date));
-        } else if (sortBy === 'amount') {
-            return order * (a.amount - b.amount);
+        switch (sortBy) {
+            case 'amount':
+                return order * (a.amount - b.amount);
+            case 'date':
+                return order * (new Date(a.date) - new Date(b.date));
+            case 'id':
+                return order * (a.id - b.id);
+            default:
+                return 0;
         }
-        return 0;
     });
 
     const indexOfLastTransaction = currentPage * transactionsPerPage;
@@ -111,7 +112,7 @@ const AdminPage = ({ onLogout }) => {
     };
 
     const userTransactionCounts = transactions.reduce((acc, transaction) => {
-        acc[transaction.userId] = (acc[transaction.userId] || 0) + 1;
+        acc[transaction.user_id] = (acc[transaction.user_id] || 0) + 1;
         return acc;
     }, {});
 
@@ -121,7 +122,7 @@ const AdminPage = ({ onLogout }) => {
     }));
 
     const totalAmountsByUserId = transactions.reduce((acc, transaction) => {
-        acc[transaction.userId] = (acc[transaction.userId] || 0) + transaction.amount;
+        acc[transaction.user_id] = (acc[transaction.user_id] || 0) + transaction.amount;
         return acc;
     }, {});
 
@@ -132,6 +133,17 @@ const AdminPage = ({ onLogout }) => {
         value: totalAmount,
     }));
 
+    const handleStatusChange = (transactionId, newStatus) => {
+        setTransactions(prevTransactions =>
+            prevTransactions.map(transaction => {
+                if (transaction.id === transactionId) {
+                    return { ...transaction, operation_status: newStatus, fraud_probability: 0 };
+                } else {
+                    return transaction;
+                }
+            })
+        );
+    };
     return (
         <div className="admin-page-container">
             <div className="admin-page">
@@ -139,57 +151,37 @@ const AdminPage = ({ onLogout }) => {
                 <h2>Панель управления</h2>
 
 
-                <h3>Записать новую транзакцию</h3>
-                <div className="add-transaction-form">
-                    <input
-                        type="datetime-local"
-                        value={newTransaction.date}
-                        onChange={(e) => setNewTransaction({ ...newTransaction, date: e.target.value })}
-                        className="new-transaction-input"
-                    />
-                    <input
-                        type="number"
-                        placeholder="Сумма"
-                        value={newTransaction.amount}
-                        onChange={(e) => setNewTransaction({ ...newTransaction, amount: e.target.value })}
-                        className="new-transaction-input"
-                    />
-                    <input
-                        type="text"
-                        placeholder="Описание"
-                        value={newTransaction.description}
-                        onChange={(e) => setNewTransaction({ ...newTransaction, description: e.target.value })}
-                        className="new-transaction-input"
-                    />
-                    <input
-                        type="number"
-                        placeholder="User ID"
-                        value={newTransaction.userId}
-                        onChange={(e) => setNewTransaction({ ...newTransaction, userId: e.target.value })}
-                        className="new-transaction-input"
-                    />
-                    <button className="btn btn-add" onClick={handleCreateTransaction}>Добавить</button>
-                </div>
-
-
                 <div className="filters">
                     <input
                         type="text"
-                        placeholder="Поиск по описанию, дате или user id"
+                        placeholder="Поиск по User ID, Recipient ID или дате"
                         value={searchTerm}
                         onChange={(e) => setSearchTerm(e.target.value)}
                         className="search-input"
                     />
                     <div className="sort-options">
                         <label htmlFor="sortBy">Сортировать по:</label>
-                        <select id="sortBy" value={sortBy} onChange={(e) => setSortBy(e.target.value)}>
-                            <option value="date">Дата</option>
+                        <select id="sortBy" value={sortBy} onChange={(e) => setSortBy(e.target.value)} className="sort-select">
                             <option value="amount">Сумма</option>
+                            <option value="date">Дата и время</option>
+                            <option value="id">ID операции</option>
                         </select>
-                        <select value={sortOrder} onChange={(e) => setSortOrder(e.target.value)}>
+                        <select value={sortOrder} onChange={(e) => setSortOrder(e.target.value)} className="sort-order-select">
                             <option value="asc">По возрастанию</option>
                             <option value="desc">По убыванию</option>
                         </select>
+                    </div>
+                    <div className="requires-review-filter">
+                        <label htmlFor="showOnlyRequiresReview" className="requires-review-label">
+                            <input
+                                type="checkbox"
+                                id="showOnlyRequiresReview"
+                                checked={showOnlyRequiresReview}
+                                onChange={(e) => setShowOnlyRequiresReview(e.target.checked)}
+                                className="requires-review-checkbox"
+                            />
+                            Показать только требующие проверки
+                        </label>
                     </div>
                 </div>
 
@@ -197,8 +189,7 @@ const AdminPage = ({ onLogout }) => {
 
                 <TransactionList
                     transactions={currentTransactions}
-                    onDelete={handleDeleteTransaction}
-                    onUpdate={handleUpdateTransaction}
+                    onStatusChange={handleStatusChange}
                 />
 
                 <div className="pagination">
@@ -262,6 +253,3 @@ const AdminPage = ({ onLogout }) => {
 };
 
 export default AdminPage;
-
-
-
