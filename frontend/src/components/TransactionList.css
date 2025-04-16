@@ -1,4 +1,4 @@
-.transaction-list-container {
+.transation-list-container {
     width: 100%;
     overflow-x: auto;
 }
@@ -88,6 +88,37 @@
     box-sizing: border-box;
     font-size: 1em;
 }
+
+.transaction-list th:nth-child(1),
+.transaction-list td:nth-child(1) {
+    width: 5%;
+}
+
+.transaction-list th:nth-child(2),
+.transaction-list td:nth-child(2) {
+    width: 15%;
+}
+
+.transaction-list th:nth-child(3),
+.transaction-list td:nth-child(3) {
+    width: 20%;
+}
+
+.transaction-list th:nth-child(4),
+.transaction-list td:nth-child(4) {
+    width: 20%;
+}
+
+.transaction-list th:nth-child(5),
+.transaction-list td:nth-child(5) {
+    width: 10%;
+}
+
+.transaction-list th:nth-child(6),
+.transaction-list td:nth-child(6) {
+    width: 30%;
+}
+
 
 @media (max-width: 768px) {
     .transaction-list {

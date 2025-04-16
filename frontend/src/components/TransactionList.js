@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import './TransactionList.css';
 
@@ -17,7 +16,7 @@ const TransactionList = ({ transactions, onDelete, onUpdate }) => {
     };
 
     const handleSaveEdit = () => {
-        onUpdate({ ...editedTransaction, date: new Date(editedTransaction.date).toISOString() });
+        onUpdate({ ...editedTransaction, date: editedTransaction.date });
         setEditingTransactionId(null);
         setEditedTransaction({});
     };
@@ -36,6 +35,7 @@ const TransactionList = ({ transactions, onDelete, onUpdate }) => {
     }
 
     const formatDate = (dateString) => {
+        if (!dateString) return '';
         const date = new Date(dateString);
         const year = date.getFullYear();
         const month = String(date.getMonth() + 1).padStart(2, '0');
@@ -65,16 +65,7 @@ const TransactionList = ({ transactions, onDelete, onUpdate }) => {
                                 <>
                                     <td data-label="ID">{transaction.id}</td>
                                     <td data-label="Дата">
-                                        {editingTransactionId === transaction.id ? (
-                                            <input
-                                                type="datetime-local"
-                                                name="date"
-                                                value={new Date(editedTransaction.date).toISOString().slice(0, 16)}
-                                                onChange={handleChange}
-                                            />
-                                        ) : (
-                                            formatDate(transaction.date)
-                                        )}
+                                        {formatDate(transaction.date)}
                                     </td>
                                     <td data-label="Сумма">
                                         {editingTransactionId === transaction.id ? (
@@ -100,7 +91,9 @@ const TransactionList = ({ transactions, onDelete, onUpdate }) => {
                                             transaction.description
                                         )}
                                     </td>
-                                    <td data-label="User ID">{transaction.userId}</td>
+                                    <td data-label="User ID">
+                                        {transaction.userId}
+                                    </td>
                                     <td data-label="Действия">
                                         {editingTransactionId === transaction.id ? (
                                             <>
