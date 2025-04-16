@@ -1,0 +1,120 @@
+.help-page-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    background: linear-gradient(to right, #003A8C, #00A368);
+    padding: 20px;
+    width: 60%
+}
+
+.help-page {
+    background-color: rgba(255, 255, 255, 0.9);
+    border-radius: 15px;
+    padding: 40px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+    text-align: center;
+    width: 90%;
+    max-width: 400px;
+    min-width: 300px;
+    position: relative;
+}
+
+@media (max-width: 576px) {
+    .help-page {
+        padding: 20px;
+        width: 95%;
+    }
+}
+
+.help-page h2 {
+    color: #003A8C;
+    font-size: 2.5em;
+    margin-bottom: 20px;
+    font-weight: 600;
+    margin-top: 60px;
+}
+
+.help-text {
+    font-size: 1.2em;
+    margin-bottom: 30px;
+    color: #555;
+}
+
+.contact-info {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    margin-bottom: 40px;
+}
+
+.contact-item {
+    display: flex;
+    align-items: center;
+    margin-bottom: 15px;
+    font-size: 1.1em;
+    color: #555;
+}
+
+.contact-item i {
+    margin-right: 15px;
+    font-size: 1.5em;
+    color: #00A368;
+}
+
+.btn {
+    padding: 12px 25px;
+    border: none;
+    border-radius: 8px;
+    font-size: 1em;
+    cursor: pointer;
+    transition: background-color 0.3s ease, color 0.3s ease;
+    margin-top: 20px;
+    width: auto;
+    min-width: 150px;
+}
+
+.btn-request {
+    background-color: #00A368;
+    color: white;
+}
+
+.btn-request:hover {
+    background-color: #008050;
+}
+
+.btn-logout {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    background-color: #e74c3c;
+    color: white;
+}
+
+.btn-logout:hover {
+    background-color: #c0392b;
+}
+
+.request-form {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.request-form textarea {
+    width: 100%;
+    padding: 10px;
+    margin-bottom: 10px;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    font-size: 1em;
+}
+
+.btn-send {
+    background-color: #00A368;
+    color: white;
+}
+
+.btn-send:hover {
+    background-color: #008050;
+}

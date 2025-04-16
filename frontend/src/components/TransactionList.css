@@ -1,0 +1,154 @@
+.transaction-list-container {
+    width: 100%;
+    overflow-x: auto;
+}
+
+.transaction-list {
+    width: 100%;
+    border-collapse: collapse;
+    margin-bottom: 20px;
+    background-color: #fff;
+    border-radius: 8px;
+    overflow: hidden;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+}
+
+.transaction-list th,
+.transaction-list td {
+    padding: 12px 15px;
+    text-align: left;
+    border-bottom: 1px solid #ddd;
+}
+
+.transaction-list th {
+    background-color: #f5f5f5;
+    color: #333;
+    font-weight: 600;
+}
+
+.transaction-list tbody tr:nth-child(even) {
+    background-color: #f9f9f9;
+}
+
+.transaction-list tbody tr:last-child td {
+    border-bottom: none;
+}
+
+.transaction-list .btn {
+    padding: 8px 12px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 0.9em;
+    transition: background-color 0.3s ease;
+    margin: 3px;
+    color: white;
+}
+
+.transaction-list .btn-edit {
+    background-color: #3498db;
+}
+
+.transaction-list .btn-edit:hover {
+    background-color: #2980b9;
+}
+
+.transaction-list .btn-delete {
+    background-color: #e74c3c;
+}
+
+.transaction-list .btn-delete:hover {
+    background-color: #c0392b;
+}
+
+.transaction-list .btn-save {
+    background-color: #2ecc71;
+}
+
+.transaction-list .btn-save:hover {
+    background-color: #27ae60;
+}
+
+.transaction-list .btn-cancel {
+    background-color: #95a5a6;
+}
+
+.transaction-list .btn-cancel:hover {
+    background-color: #7f8c8d;
+}
+
+.transaction-list input[type="text"],
+.transaction-list input[type="number"],
+.transaction-list input[type="datetime-local"] {
+    width: 100%;
+    padding: 8px;
+    margin: 5px 0;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    box-sizing: border-box;
+    font-size: 1em;
+}
+
+@media (max-width: 768px) {
+    .transaction-list {
+        border: 0;
+    }
+
+    .transaction-list thead {
+        display: none;
+    }
+
+    .transaction-list tr {
+        margin-bottom: 15px;
+        display: block;
+        border-bottom: 2px solid #ddd;
+    }
+
+    .transaction-list td {
+        display: block;
+        text-align: right;
+        font-size: 0.9em;
+        border-bottom: 1px dotted #ddd;
+    }
+
+    .transaction-list td:last-child {
+        border-bottom: 0;
+    }
+
+    .transaction-list td::before {
+        content: attr(data-label);
+        float: left;
+        font-weight: bold;
+        text-transform: uppercase;
+    }
+}
+
+.transaction-list th:nth-child(1),
+.transaction-list td:nth-child(1) {
+    data-label: "ID";
+}
+
+.transaction-list th:nth-child(2),
+.transaction-list td:nth-child(2) {
+    data-label: "Дата";
+}
+
+.transaction-list th:nth-child(3),
+.transaction-list td:nth-child(3) {
+    data-label: "Сумма";
+}
+
+.transaction-list th:nth-child(4),
+.transaction-list td:nth-child(4) {
+    data-label: "Описание";
+}
+
+.transaction-list th:nth-child(5),
+.transaction-list td:nth-child(5) {
+    data-label: "User ID";
+}
+
+.transaction-list th:nth-child(6),
+.transaction-list td:nth-child(6) {
+    data-label: "Действия";
+}
