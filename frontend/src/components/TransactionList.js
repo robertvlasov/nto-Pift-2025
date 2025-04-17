@@ -21,7 +21,7 @@ const TransactionList = ({ transactions, onStatusChange }) => {
 
     const handleAnswer = async (verdict, id) => {
       try {
-        const response = await axios.post(`http://localhost:8000/transactions/${id}/verdict/`, verdict);
+        const response = await axios.post(`http://localhost:5432/transactions/${id}/verdict/`, verdict);
       } catch (error) {
           console.error('Error creating item:', error);
       }

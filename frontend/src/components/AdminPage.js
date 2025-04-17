@@ -41,7 +41,7 @@ const AdminPage = ({ onLogout }) => {
 
     const fetchTransactions = async () => {
         try {
-            const response = await axios.get('http://localhost:8000/transactions/');
+            const response = await axios.get('http://localhost:5432/transactions/');
             setTransactions(response.data);
         } catch (error) {
             console.error('Error fetching items:', error);
