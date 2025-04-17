@@ -1,6 +1,7 @@
 
 import React, { useState, useEffect } from 'react';
 import TransactionList from './TransactionList';
+import axios from 'axios';
 import './AdminPage.css';
 import {
     BarChart,
@@ -22,10 +23,32 @@ const AdminPage = ({ onLogout }) => {
     const [sortBy, setSortBy] = useState('amount');
     const [sortOrder, setSortOrder] = useState('desc');
     const [currentPage, setCurrentPage] = useState(1);
-    const transactionsPerPage = 5;
+    const [transactionsPerPage, setTransactionsPerPage] = useState(5);
     const [showOnlyRequiresReview, setShowOnlyRequiresReview] = useState(false);
 
 
+    useEffect(() => {
+        fetchTransactions();
+        const handleResize = () => {
+            setTransactionsPerPage(window.innerWidth < 768 ? 1 : 5);
+        };
+
+        handleResize();
+        window.addEventListener('resize', handleResize);
+        return () => window.removeEventListener('resize', handleResize);
+    }, []);
+
+
+    const fetchTransactions = async () => {
+        try {
+            const response = await axios.get('http://localhost:8000/transactions/');
+            setTransactions(response.data);
+        } catch (error) {
+            console.error('Error fetching items:', error);
+        }
+    };
+
+    /*
     useEffect(() => {
         const initialTransactions = Array.from({ length: 15 }, (_, i) => {
             const fraudProbability = Math.random() * 100;
@@ -48,6 +71,7 @@ const AdminPage = ({ onLogout }) => {
         });
         setTransactions(initialTransactions);
     }, []);
+    */
 
 
     const getStatus = (transaction) => {
@@ -144,6 +168,12 @@ const AdminPage = ({ onLogout }) => {
             })
         );
     };
+
+    const handleShowOnlyRequiresReviewChange = (e) => {
+      setShowOnlyRequiresReview(e.target.checked);
+      setCurrentPage(1);
+    };
+
     return (
         <div className="admin-page-container">
             <div className="admin-page">
@@ -177,7 +207,7 @@ const AdminPage = ({ onLogout }) => {
                                 type="checkbox"
                                 id="showOnlyRequiresReview"
                                 checked={showOnlyRequiresReview}
-                                onChange={(e) => setShowOnlyRequiresReview(e.target.checked)}
+                                onChange={handleShowOnlyRequiresReviewChange}
                                 className="requires-review-checkbox"
                             />
                             Показать только требующие проверки
@@ -194,7 +224,7 @@ const AdminPage = ({ onLogout }) => {
 
                 <div className="pagination">
                     <button className="btn btn-pagination" onClick={handlePrevPage} disabled={currentPage === 1}>Предыдущая</button>
-                    <button className="btn btn-pagination" onClick={handleNextPage} disabled={currentPage === totalPages || totalPages === 0}>Следующая</button>
+                    <button className="btn btn-pagination" onClick={handleNextPage} disabled={currentPage === totalPages || totalPages === 0 || totalPages === 1}>Следующая</button>
                     <div className="page-number-input">
                         <input
                             type="number"

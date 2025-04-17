@@ -1,5 +1,5 @@
 
-.transaction-list-container {
+.transation-list-container {
     width: 100%;
     overflow-x: auto;
 }
@@ -17,10 +17,12 @@
 
 .transaction-list th,
 .transaction-list td {
-    padding: 18px 15px 12px 15px;
+    padding: 12px 15px 8px 15px;
     text-align: left;
     border-bottom: 1px solid #ddd;
-    height: 40px;
+    height: 35px;
+    transition: background-color 0.3s ease, color 0.3s ease;
+    vertical-align: middle;
 }
 
 .transaction-list th {
@@ -38,11 +40,11 @@
 }
 
 .transaction-list .btn {
-    padding: 8px 12px;
+    padding: 6px 10px;
     border: none;
     border-radius: 5px;
     cursor: pointer;
-    font-size: 0.9em;
+    font-size: 0.85em;
     transition: background-color 0.3s ease;
     margin: 3px;
     color: white;
@@ -98,6 +100,7 @@
     width: 12%;
 }
 
+
 @media (max-width: 768px) {
     .transaction-list {
         border: 0;
@@ -115,7 +118,7 @@
 
     .transaction-list td {
         display: block;
-        text-align: right;
+        text-align: left;
         font-size: 0.9em;
         border-bottom: 1px dotted #ddd;
     }
@@ -132,7 +135,23 @@
         margin-right: 5px;
         white-space: nowrap;
     }
+
+    .transaction-list th:nth-child(1),
+    .transaction-list td:nth-child(1),
+    .transaction-list th:nth-child(2),
+    .transaction-list td:nth-child(2),
+    .transaction-list th:nth-child(3),
+    .transaction-list td:nth-child(3),
+    .transaction-list th:nth-child(4),
+    .transaction-list td:nth-child(4),
+    .transaction-list th:nth-child(5),
+    .transaction-list td:nth-child(5),
+    .transaction-list th:nth-child(6),
+    .transaction-list td:nth-child(6) {
+        width: auto;
+    }
 }
+
 
 .transaction-list th:nth-child(1),
 .transaction-list td:nth-child(1) {
@@ -173,19 +192,23 @@
     position: absolute;
     background-color: rgba(244, 67, 54, 0.7);
     color: white;
-    left: 0%;
-    padding: 2px;
+    right: 0%;
+    top: 0;
+    padding: 2px 5px;
     border-radius: 4px;
-    font-size: 0.8em;
+    font-size: 0.7em;
     z-index: 1;
     cursor: default;
 }
+
 
 .expanded-details {
     padding: 15px;
     background-color: #f0f0f0;
     text-align: left;
+    transition: all 0.3s ease;
 }
+
 
 .details-grid {
     display: grid;
@@ -209,7 +232,6 @@
     justify-content: center;
     margin-top: 10px;
 }
-
 
 .btn-success {
     background-color: #4CAF50;
@@ -258,4 +280,37 @@
 .btn-info svg {
     margin-right: 5px;
     vertical-align: middle;
+}
+
+.expanded-row {
+    transition: all 0.3s ease;
+}
+
+@media (max-width: 768px) {
+    .expanded-details {
+
+        padding: 10px;
+        margin-bottom: 20px;
+    }
+
+    .details-grid {
+        grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
+    }
+
+    .detail-item {
+        margin-bottom: 10px;
+    }
+
+    .status-actions {
+        flex-direction: column;
+        align-items: center;
+    }
+
+    .status-actions button {
+        margin: 5px 0;
+        width: 100%;
+    }
+    .expanded-row {
+        margin-bottom: 220px;
+    }
 }

@@ -1,11 +1,7 @@
 
-
-
-
-
-
 import React, { useState } from 'react';
 import './TransactionList.css';
+import axios from 'axios';
 import { FaCheck, FaTimes, FaInfoCircle } from 'react-icons/fa';
 
 const TransactionList = ({ transactions, onStatusChange }) => {
@@ -22,6 +18,14 @@ const TransactionList = ({ transactions, onStatusChange }) => {
             return transaction.fraud_probability > 70 ? "Требует проверки" : "Завершена";
         }
     };
+
+    const handleAnswer = async (verdict, id) => {
+      try {
+        const response = await axios.post(`http://localhost:8000/transactions/${id}/verdict/`, verdict);
+      } catch (error) {
+          console.error('Error creating item:', error);
+      }
+  };
 
     const formatDate = (dateString) => {
         const date = new Date(dateString);
@@ -40,7 +44,7 @@ const TransactionList = ({ transactions, onStatusChange }) => {
                     <tr>
                         <th>Дата и время</th>
                         <th>ID операции</th>
-                        <th>User ID -> Recipient ID</th>
+                        <th>User ID -&gt; Recipient ID</th>
                         <th>Сумма операции</th>
                         <th>Статус операции</th>
                         <th>Действия</th>
@@ -55,13 +59,13 @@ const TransactionList = ({ transactions, onStatusChange }) => {
 
                         return (
                             <React.Fragment key={transaction.id}>
-                                {isHighFraud && <div className="fraud-alert">Вероятность мошенничества</div>}
-                                <tr
-                                    className={isHighFraud ? "fraudulent-transaction" : ""}
-                                >
-                                    <td data-label="Дата и время">{formatDate(transaction.date)}</td>
+                                <tr className={isHighFraud ? "fraudulent-transaction" : ""}>
+                                    <td data-label="Дата и время">
+                                        {isHighFraud && <div className="fraud-alert">Вероятность мошенничества</div>}
+                                        {formatDate(transaction.date)}
+                                    </td>
                                     <td data-label="ID операции">{transaction.id}</td>
-                                    <td data-label="User ID -> Recipient ID">{transaction.user_id} -> {transaction.recipient_id}</td>
+                                    <td data-label="User ID -&gt; Recipient ID">{transaction.user_id} -&gt; {transaction.recipient_id}</td>
                                     <td data-label="Сумма операции">{transaction.amount}</td>
                                     <td data-label="Статус операции">{status}</td>
                                     <td data-label="Действия">
@@ -72,47 +76,57 @@ const TransactionList = ({ transactions, onStatusChange }) => {
                                 </tr>
                                 {isExpanded && (
                                     <tr>
-                                        <td colSpan="6" className="expanded-details">
-                                            <div className="details-grid">
-                                                <div className="detail-item">
-                                                    <span className="detail-label">Market Place ID:</span>
-                                                    <span>{transaction.market_place_Id}</span>
+                                        <td colSpan="6" className="expanded-row">
+                                            <div className="expanded-details">
+                                                <div className="details-grid">
+                                                    <div className="detail-item">
+                                                        <span className="detail-label">Market Place ID:</span>
+                                                        <span>{transaction.market_place_Id}</span>
+                                                    </div>
+                                                    <div className="detail-item">
+                                                        <span className="detail-label">Mobile User ID:</span>
+                                                        <span>{transaction.mobile_user_id}</span>
+                                                    </div>
+                                                    <div className="detail-item">
+                                                        <span className="detail-label">Scammer Account:</span>
+                                                        <span>{transaction.scammer_acc}</span>
+                                                    </div>
+                                                    <div className="detail-item">
+                                                        <span className="detail-label">Contact Phone:</span>
+                                                        <span>{transaction.contact_phone}</span>
+                                                    </div>
+                                                    <div className="detail-item">
+                                                        <span className="detail-label">FIO:</span>
+                                                        <span>{transaction.fio}</span>
+                                                    </div>
+                                                    <div className="detail-item">
+                                                        <span className="detail-label">Address:</span>
+                                                        <span>{transaction.address}</span>
+                                                    </div>
+                                                    <div className="detail-item">
+                                                        <span className="detail-label">Fraud Probability:</span>
+                                                        <span>{transaction.fraud_probability.toFixed(2)}</span>
+                                                    </div>
                                                 </div>
-                                                <div className="detail-item">
-                                                    <span className="detail-label">Mobile User ID:</span>
-                                                    <span>{transaction.mobile_user_id}</span>
-                                                </div>
-                                                <div className="detail-item">
-                                                    <span className="detail-label">Scammer Account:</span>
-                                                    <span>{transaction.scammer_acc}</span>
-                                                </div>
-                                                <div className="detail-item">
-                                                    <span className="detail-label">Contact Phone:</span>
-                                                    <span>{transaction.contact_phone}</span>
-                                                </div>
-                                                <div className="detail-item">
-                                                    <span className="detail-label">FIO:</span>
-                                                    <span>{transaction.fio}</span>
-                                                </div>
-                                                <div className="detail-item">
-                                                    <span className="detail-label">Address:</span>
-                                                    <span>{transaction.address}</span>
-                                                </div>
-                                                <div className="detail-item">
-                                                    <span className="detail-label">Fraud Probability:</span>
-                                                    <span>{transaction.fraud_probability.toFixed(2)}</span>
-                                                </div>
+                                                {requiresReview && (
+                                                    <div className="status-actions">
+                                                        <button className="btn btn-success" onClick={() => {
+                                                            handleAnswer('True', transaction.id);
+                                                            onStatusChange(transaction.id, "Завершена");
+                                                        }
+                                                        }>
+                                                            <FaCheck /> Проверено
+                                                        </button>
+                                                        <button className="btn btn-danger" onClick={() => {
+                                                            handleAnswer('False', transaction.id);
+                                                            onStatusChange(transaction.id, "Прервана")
+                                                        }
+                                                        }>
+                                                            <FaTimes /> Прервать
+                                                        </button>
+                                                    </div>
+                                                )}
                                             </div>
-                                            {requiresReview && (
-                                                <div className="status-actions">
-                                                    <button className="btn btn-success" onClick={() => onStatusChange(transaction.id, "Завершена")}>
-                                                        <FaCheck /> Проверено
-                                                    </button>
-                                                    <button className="btn btn-danger" onClick={() => onStatusChange(transaction.id, "Прервана")}>
-                                                        <FaTimes /> Прервать
-                                                    </button>
-                                                </div>
-                                            )}
                                         </td>
                                     </tr>
                                 )}
