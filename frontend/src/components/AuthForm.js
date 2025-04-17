@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import axios from 'axios';
 import './AuthForm.css';
 
 const AuthForm = ({ onLogin }) => {
@@ -12,6 +13,38 @@ const AuthForm = ({ onLogin }) => {
         { login: 'admin', password: 'admin', role: 'admin', telegramUsername: '@Werzant' },
         { login: 'asd', password: 'asd', role: 'help', telegramUsername: '@user' },
     ];
+    const handleCheck = async (login, password) => {
+        try {
+            const response = await axios.post(`http://localhost:8000/transactions/verdict/`, [login, password]);
+            handleGetAnswer()
+        } catch (error) {
+            console.error('Error creating item:', error);
+        }
+    };
+    const handleGetAnswer = async () => {
+        try {
+            const response = await axios.get('http://localhost:8000/transactions/');
+            let user = response.data
+            if (user) {
+                localStorage.setItem('telegramUsername', user.telegramUsername);
+                onLogin(user.role);
+            } else {
+                setErrorMessage('Неверный логин или пароль.');
+            }
+        } catch (error) {
+            console.error('Error fetching items:', error);
+        }
+    };
+
+    const handleRegistration = async (login, password, tgid) => {
+        try {
+            const response = await axios.post(`http://localhost:8000/transactions/verdict/`, [login, password, tgid]);
+            handleGetAnswer()
+        } catch (error) {
+            console.error('Error creating item:', error);
+        }
+    };
+
 
     const handleSubmit = (e) => {
         e.preventDefault();
@@ -28,26 +61,14 @@ const AuthForm = ({ onLogin }) => {
                 return;
             }
 
-            const userExists = initialUsers.some((user) => user.login === login);
-            if (userExists) {
-                setErrorMessage('Пользователь с таким логином уже зарегистрирован.');
-                return;
-            }
-
             console.log('Регистрация:', { login, password, telegramUsername });
+            handleRegistration(login, password, telegramUsername);
             setIsRegistering(false);
             setErrorMessage('Регистрация прошла успешно. Войдите, используя свой логин и пароль.');
 
             return;
         } else {
-            const user = initialUsers.find((user) => user.login === login && user.password === password);
-
-            if (user) {
-                localStorage.setItem('telegramUsername', user.telegramUsername);
-                onLogin(user.role);
-            } else {
-                setErrorMessage('Неверный логин или пароль.');
-            }
+            handleCheck(login,password)
         }
     };
 
